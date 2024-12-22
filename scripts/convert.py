@@ -41,7 +41,8 @@ def conv_float8_nf4(t: Tensor):
     if 'bitsandbytes' not in sys.modules:      
       install_bitsandbytes();
     import bitsandbytes.functional
-    return bitsandbytes.functional.quantize_4bit(t.to("cuda"), quant_type="nf4") if t.dtype in dtypes_to_nf4 else t
+    quant, quant_state = bitsandbytes.functional.quantize_nf4(t.to("cuda"))
+    return quant if t.dtype in dtypes_to_nf4 else t
 
 def conv_full(t):
     return t
