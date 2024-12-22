@@ -11,6 +11,7 @@ dtypes_to_fp16 = {torch.float32, torch.float64, torch.bfloat16}
 dtypes_to_bf16 = {torch.float32, torch.float64, torch.float16}
 dtypes_to_float8_e4m3fn = {torch.float32, torch.float64, torch.bfloat16, torch.float16}
 dtypes_to_float8_e5m2 = {torch.float32, torch.float64, torch.bfloat16, torch.float16}
+dtypes_to_int8 = {torch.float32, torch.float64, torch.bfloat16, torch.float16}
 
 
 class MockModelInfo:
@@ -34,6 +35,9 @@ def conv_float8_e4m3fn(t: Tensor):
 def conv_float8_e5m2(t: Tensor):
     return t.to(torch.float8_e5m2) if t.dtype in dtypes_to_float8_e5m2 else t
 
+def conv_int8(t: Tensor):
+    return t.to(torch.int8) if t.dtype in dtypes_to_int8 else t
+
 def conv_full(t):
     return t
 
@@ -45,6 +49,7 @@ _g_precision_func = {
     "bf16": conv_bf16,
     "float8_e4m3fn": conv_float8_e4m3fn,
     "float8_e5m2": conv_float8_e5m2,
+    "int8": conv_int8
 }
 
 
