@@ -5,11 +5,19 @@ import safetensors.torch
 from torch import Tensor
 from modules import shared
 from modules import sd_models, sd_vae
+import subprocess
+import sys
 
 # position_ids in clip is int64. model_ema.num_updates is int32
 dtypes_to_fp16 = {torch.float32, torch.float64, torch.bfloat16}
 dtypes_to_bf16 = {torch.float32, torch.float64, torch.float16}
+<<<<<<< Updated upstream
 dtypes_to_fp8 = {torch.float32, torch.float64, torch.bfloat16, torch.float16}
+=======
+dtypes_to_float8_e4m3fn = {torch.float32, torch.float64, torch.bfloat16, torch.float16}
+dtypes_to_float8_e5m2 = {torch.float32, torch.float64, torch.bfloat16, torch.float16}
+dtypes_to_nf4 = {torch.float32, torch.float64, torch.bfloat16, torch.float16}
+>>>>>>> Stashed changes
 
 
 class MockModelInfo:
@@ -31,8 +39,17 @@ def conv_fp8(t: Tensor):
     return t.to(torch.float8_e4m3fn) if t.dtype in dtypes_to_fp8 else t
 
 
+def conv_float8_nf4(t: Tensor):
+    if 'bitsandbytes' not in sys.modules:      
+      install_bitsandbytes();
+    import bitsandbytes.functional
+    return bitsandbytes.functional.quantize_4bit(t.to("cuda"), quant_type="nf4") if t.dtype in dtypes_to_nf4 else t
+
 def conv_full(t):
     return t
+
+def install_bitsandbytes():
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "bitsandbytes"])
 
 
 _g_precision_func = {
@@ -40,7 +57,13 @@ _g_precision_func = {
     "fp32": conv_full,
     "fp16": conv_fp16,
     "bf16": conv_bf16,
+<<<<<<< Updated upstream
     "fp8": conv_fp8,
+=======
+    "float8_e4m3fn": conv_float8_e4m3fn,
+    "float8_e5m2": conv_float8_e5m2,
+    "nf4": conv_float8_nf4,
+>>>>>>> Stashed changes
 }
 
 
